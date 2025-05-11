@@ -395,6 +395,14 @@ header {
     color: #555;
 }
 
+.dark-mode .card-content p {
+    color: #fff;
+}
+
+.dark-mode .card-content h4{
+    color: #185DA9;
+}
+
 /* 
 * Listas dentro dos cards
 * Estiliza as listas não ordenadas nos cards
