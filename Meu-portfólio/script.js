@@ -203,9 +203,16 @@ const handleScrollEffects = () => {
             section.style.transform = 'translateY(20px)';
         });
         
-        // Resetar as barras de progresso
+        // Resetar as barras de progresso de forma forçada
         if (window.resetProgressBars) {
             window.resetProgressBars();
+            
+            // Garantir que o estado da animação seja resetado
+            const progressBars = document.querySelectorAll('.progress-fill');
+            progressBars.forEach(bar => {
+                bar.classList.remove('animated');
+                bar.style.width = '0';
+            });
         }
         
         // Resetar ícones de tecnologia
@@ -347,12 +354,22 @@ const animateTechSkills = () => {
     if (!progressBars.length) return;
     
     const animateProgressBar = (element) => {
-        const width = element.style.width;
+        // Guardamos a largura original como atributo de dados se ainda não existir
+        if (!element.dataset.originalWidth) {
+            const width = element.getAttribute('style').replace('width: ', '').replace(';', '');
+            element.dataset.originalWidth = width;
+        }
+        
+        // Resetamos para zero
         element.style.width = '0';
         
+        // Forçamos um reflow para garantir a animação
+        void element.offsetWidth;
+        
+        // Aplicamos a largura depois de um pequeno delay
         setTimeout(() => {
-            element.style.width = width;
-        }, 300);
+            element.style.width = element.dataset.originalWidth;
+        }, 50);
     };
     
     // Função para verificar se elemento está visível
@@ -367,51 +384,70 @@ const animateTechSkills = () => {
     // Resetar animações de progresso
     const resetProgressBars = () => {
         progressBars.forEach(bar => {
+            // Adicionar classe de resetting para desabilitar a transição durante o reset
+            bar.classList.add('resetting');
+            
             // Remove a classe animated de todas as barras
             bar.classList.remove('animated');
+            
             // Reseta a largura para 0
             bar.style.width = '0';
+            
             // Importante: forçar reflow para garantir que a animação seja replicada
             void bar.offsetWidth;
+            
+            // Remover a classe de resetting depois de um pequeno delay
+            setTimeout(() => {
+                bar.classList.remove('resetting');
+            }, 50);
         });
+        
+        // Resetar o estado de animação
+        hasAnimated = false;
     };
     
-    // Variável para rastrear se a seção saiu da visualização
-    let skillsSectionLeft = false;
+    // Variável para verificar se já animamos as barras
+    let hasAnimated = false;
+    // Rastrear a última posição de scroll
+    let lastScrollTop = 0;
     
     // Verificar e animar barras visíveis
     const checkProgressBars = () => {
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        const skillsSection = document.querySelector('.technical-skills');
+        // Busca a seção que contém as barras de progresso
+        const skillsSection = document.querySelector('.progress-bars')?.closest('.skills-column');
         
         if (!skillsSection) return;
         
-        // Reset quando voltar ao topo
-        if (scrollTop < 300) {
+        // Pegar a posição atual de scroll
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        // Detectar direção do scroll
+        const isScrollingUp = scrollTop < lastScrollTop;
+        
+        // Se estiver scrollando para cima e estiver próximo ao topo, resetar barras
+        if (isScrollingUp && scrollTop < 300) {
             resetProgressBars();
-            return;
         }
         
-        // Verifica se a seção está fora da visualização
+        // Verifica se a seção está visível
         const skillsSectionVisible = isInViewport(skillsSection);
         
-        // Se a seção não estiver visível e estava anteriormente, marca que saiu da visualização
-        if (!skillsSectionVisible && !skillsSectionLeft) {
-            skillsSectionLeft = true;
-        }
-        
-        // Se a seção estiver visível agora e tinha saído anteriormente, reseta para reanimarmos
-        if (skillsSectionVisible && skillsSectionLeft) {
-            resetProgressBars();
-            skillsSectionLeft = false;
-        }
-        
-        progressBars.forEach(bar => {
-            if (isInViewport(bar) && !bar.classList.contains('animated')) {
+        // Se a seção está visível e ainda não animamos, fazemos a animação
+        if (skillsSectionVisible && !hasAnimated) {
+            progressBars.forEach(bar => {
                 animateProgressBar(bar);
                 bar.classList.add('animated');
-            }
-        });
+            });
+            hasAnimated = true;
+        }
+        
+        // Se a seção não está mais visível e tinha sido animada, resetamos
+        if (!skillsSectionVisible && hasAnimated) {
+            resetProgressBars();
+        }
+        
+        // Atualizar a última posição de scroll
+        lastScrollTop = scrollTop;
     };
     
     // Verificar na carga inicial e no scroll
@@ -597,7 +633,7 @@ const staggeredAnimation = () => {
     
     // Função para animar ícones quando visíveis
     const animateTechIconsWhenVisible = () => {
-        const section = document.querySelector('.technical-skills');
+        const section = document.querySelector('.tech-icons').closest('.skills-column');
         if (!section) return;
         
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -678,6 +714,27 @@ document.addEventListener('DOMContentLoaded', () => {
     staggeredAnimation();
     setupTypingEffect();
     
+    // Função global para resetar todas as animações
+    window.resetAllAnimations = () => {
+        // Resetar barras de progresso com uma implementação forçada
+        const progressBars = document.querySelectorAll('.progress-fill');
+        progressBars.forEach(bar => {
+            bar.classList.remove('animated');
+            bar.style.width = '0';
+            // Forçar um reflow para garantir que a animação seja replicada
+            void bar.offsetWidth;
+        });
+        
+        // Chamar funções de reset específicas se disponíveis
+        if (window.resetProgressBars) {
+            window.resetProgressBars();
+        }
+        
+        if (window.resetTechIcons) {
+            window.resetTechIcons();
+        }
+    };
+    
     // Configurar reset de animações para links de navegação que vão para o topo
     const topLinks = document.querySelectorAll('a[href="#about"], a[href="#"]');
     topLinks.forEach(link => {
@@ -689,4 +746,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 500);
         });
     });
+    
+    // Adicionar evento para botões de scroll para o topo (se existirem)
+    const scrollTopBtn = document.getElementById('scroll-top');
+    if (scrollTopBtn) {
+        scrollTopBtn.addEventListener('click', () => {
+            setTimeout(() => {
+                if (window.resetAllAnimations) {
+                    window.resetAllAnimations();
+                }
+            }, 500);
+        });
+    }
 });
