@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokédex Completa</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="img/pokeball-icon.png" type="image/png">
+</head>
+<body>
+    <div class="container">
+        <!-- Cabeçalho -->
+        <header class="header">
+            <h1>Pokédex Completa</h1>
+            <p>Pesquise por nome ou número para encontrar informações detalhadas sobre qualquer Pokémon.</p>
+        </header>
+        
+        <!-- Formulário de busca -->
+        <div class="search-container">
+            <form id="search-form">
+                <input type="text" id="search-input" placeholder="Digite o nome ou ID do Pokémon..." autocomplete="off">
+                <button type="submit" id="search-button">Buscar</button>
+            </form>
+            <!-- Container para sugestões de pesquisa -->
+            <div id="search-suggestions-container" class="suggestions-container"></div>
+            <!-- Container para histórico de pesquisa -->
+            <div id="search-history-container"></div>
+        </div>
+        
+        <!-- Indicador de carregamento -->
+        <div id="loading">
+            <div class="spinner"></div>
+        </div>
+        
+        <!-- Mensagem de erro -->
+        <div id="error-message"></div>
+        
+        <!-- Conteúdo principal - Card do Pokémon -->
+        <div class="pokemon-card">
+            <!-- Cabeçalho do card com nome, ID e tipos -->
+            <div class="pokemon-header">
+                <div class="pokemon-name-container">
+                    <h2 id="pokemon-name" class="pokemon-name">Carregando...</h2>
+                    <span id="pokemon-id" class="pokemon-id">#000</span>
+                </div>
+                <div id="pokemon-types" class="pokemon-types">
+                    <!-- Tipos serão adicionados aqui via JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Área de imagens -->
+            <div class="pokemon-images">
+                <div class="main-image-container">
+                    <img id="main-pokemon-image" src="img/placeholder.png" alt="Carregando...">
+                </div>
+                <div class="sprite-variants">
+                    <div class="sprite-variant">
+                        <img id="pixel-art-image" src="img/placeholder-pixel.png" alt="Pixel Art">
+                        <p>Pixel Art</p>
+                    </div>
+                    <div class="sprite-variant">
+                        <img id="model-3d" src="img/placeholder-3d.png" alt="Modelo 3D">
+                        <p>Modelo 3D</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Botões de ação -->
+            <div class="action-buttons">
+                <button id="compare-button" class="action-button">
+                    <span class="action-icon">⚔️</span> Comparar
+                </button>
+                <button id="share-button" class="action-button">
+                    <span class="action-icon">🔗</span> Compartilhar
+                </button>
+            </div>
+            
+            <!-- Descrição da Pokédex -->
+            <div class="pokemon-description" id="pokemon-description">
+                Carregando descrição...
+            </div>
+            
+            <!-- Informações principais -->
+            <div class="pokemon-info">
+                <!-- Coluna da esquerda -->
+                <div class="info-column">
+                    <!-- Informações básicas -->
+                    <section class="info-section">
+                        <h3>Informações Básicas</h3>
+                        <div class="info-item">
+                            <span>Altura:</span> <span id="pokemon-height">?</span>
+                        </div>
+                        <div class="info-item">
+                            <span>Peso:</span> <span id="pokemon-weight">?</span>
+                        </div>
+                        <div class="info-item">
+                            <span>Grupo de Ovos:</span> <span id="egg-groups">?</span>
+                        </div>
+                    </section>
+                    
+                    <!-- Estatísticas -->
+                    <section class="info-section">
+                        <h3>Estatísticas</h3>
+                        <div id="stats-container">
+                            <!-- Estatísticas serão adicionadas aqui via JavaScript -->
+                        </div>
+                    </section>
+                    
+                    <!-- Habilidades -->
+                    <section class="info-section">
+                        <h3>Habilidades</h3>
+                        <div id="abilities-container">
+                            <!-- Habilidades serão adicionadas aqui via JavaScript -->
+                        </div>
+                    </section>
+                </div>
+                
+                <!-- Coluna da direita -->
+                <div class="info-column">
+                    <!-- Cadeia Evolutiva -->
+                    <section class="info-section">
+                        <h3>Grade Evolutiva</h3>
+                        <div id="evolution-chain-container" class="evolution-chain-container">
+                            <!-- Cadeia evolutiva será adicionada aqui via JavaScript -->
+                        </div>
+                    </section>
+                    
+                    <!-- Sprites adicionais -->
+                    <section class="info-section">
+                        <h3>Sprites</h3>
+                        <div id="sprites-container" class="sprites-container">
+                            <!-- Sprites serão adicionados aqui via JavaScript -->
+                        </div>
+                    </section>
+                    
+                    <!-- Relações de dano -->
+                    <section class="info-section">
+                        <h3>Dano Recebido</h3>
+                        <div id="damage-relations-container">
+                            <!-- Relações de dano serão adicionadas aqui via JavaScript -->
+                        </div>
+                    </section>
+                </div>
+            </div>
+            
+            <!-- Abas para informações adicionais -->
+            <div class="tabs-container">
+                <div class="tabs">
+                    <button class="tab-button active" data-tab="moves">Movimentos</button>
+                    <button class="tab-button" data-tab="locations">Localizações</button>
+                    <button class="tab-button" data-tab="forms">Formas Alternativas</button>
+                </div>
+                
+                <!-- Conteúdo das abas -->
+                <div class="tab-content">
+                    <!-- Movimentos -->
+                    <div id="moves-tab" class="tab-panel active">
+                        <div id="moves-container">
+                            <!-- Movimentos serão adicionados aqui via JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Localizações -->
+                    <div id="locations-tab" class="tab-panel">
+                        <div id="locations-container">
+                            <!-- Localizações serão adicionadas aqui via JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Formas alternativas -->
+                    <div id="forms-tab" class="tab-panel">
+                        <div id="alternative-forms-container" class="alternative-forms-container">
+                            <!-- Formas alternativas serão adicionadas aqui via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Rodapé -->
+        <footer class="footer">
+            <p>Desenvolvido usando a <a href="https://pokeapi.co/" target="_blank">PokéAPI</a>.</p>
+            <p>Pokémon e todos os nomes relacionados são propriedade de Nintendo/Creatures Inc./GAME FREAK Inc.</p>
+        </footer>
+    </div>
+    
+    <!-- Modal de comparação -->
+    <div id="compare-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Comparar Pokémon</h3>
+                <button class="close-modal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="compare-search">
+                    <div class="compare-pokemon" id="compare-pokemon-1">
+                        <div class="compare-pokemon-content">
+                            <div class="compare-placeholder">
+                                <p>Pokémon atual</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="compare-vs">VS</div>
+                    <div class="compare-pokemon" id="compare-pokemon-2">
+                        <div class="compare-search-container">
+                            <input type="text" id="compare-search-input" placeholder="Digite o nome ou ID do Pokémon...">
+                            <button id="compare-search-button">Buscar</button>
+                        </div>
+                        <div class="compare-pokemon-content">
+                            <div class="compare-placeholder">
+                                <p>Selecione um Pokémon para comparar</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="comparison-results">
+                    <!-- Resultados da comparação serão adicionados aqui via JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="close-comparison" class="btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Menu de favoritos -->
+    <div id="favorites-menu">
+        <div class="favorites-menu-header">
+            <h3>Favoritos</h3>
+            <button class="close-favorites">×</button>
+        </div>
+        <!-- Conteúdo do menu será adicionado via JavaScript -->
+    </div>
+    
+    <!-- Botões flutuantes -->
+    <button id="theme-toggle" class="theme-toggle">
+        <span class="toggle-icon">🌙</span>
+    </button>
+    
+    <button id="favorites-toggle" class="favorites-toggle">★</button>
+    
+    <!-- Scripts -->
+    <script src="js/security.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/audio.js"></script>
+    <script>
+        // Inicializar controles de áudio após o carregamento da página
+        document.addEventListener('DOMContentLoaded', function() {
+            setupAudioControls();
+        });
+    </script>
+</body>
+</html> 
